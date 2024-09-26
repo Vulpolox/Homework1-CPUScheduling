@@ -13,7 +13,6 @@ class CPUProcess:
         self.arrived = False                         # a flag to keep track of when the process first enters the ready state
         self.finished = False                        # a flag to keep track of when processes finishes execution
         self.in_CPU = False                          # a flag to keep track of when the process is in the CPU
-        self.has_run = False                         # a flag for keeping track of whether the process has run for the first time (for RR priorities)
 
         self.init_arrival_time = arrival_time        # for printing process information
         self.init_burst_time = burst_time            # for printing process information
@@ -26,16 +25,14 @@ class CPUProcess:
         self.finished = finished
     def set_in_CPU(self, in_CPU: bool):
         self.in_CPU = in_CPU
-    def set_has_run(self, has_run: bool):
-        self.has_run = has_run
+    def get_process_number(self):
+        return self.process_number
     def get_arrived(self):
         return self.arrived
     def get_finished(self):
         return self.finished
     def get_in_CPU(self):
         return self.in_CPU
-    def get_has_run(self):
-        return self.has_run
     def get_turnaround_time(self):
         return self.turnaround_time
     def get_arrival_time(self):
