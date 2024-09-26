@@ -17,6 +17,20 @@ class CPUProcess:
         self.init_arrival_time = arrival_time        # for printing process information
         self.init_burst_time = burst_time            # for printing process information
 
+    # accessors and mutators
+    def set_arrived(self, arrived: bool):
+        self.arrived = arrived
+    def set_finished(self, finished: bool):
+        self.finished = finished
+    def set_in_CPU(self, in_CPU: bool):
+        self.in_CPU = in_CPU
+    def get_arrived(self):
+        return self.arrived
+    def get_finished(self):
+        return self.finished
+    def get_in_CPU(self):
+        return self.in_CPU
+
     # for printing processes
     def __str__(self) -> str:
         return f'''Process #{self.process_number}
