@@ -31,13 +31,11 @@ class ProcessList:
         # if CPU is in idle state, put new_process in
         if self.process_in_CPU is None:
             new_process.set_in_CPU(True)
-            new_process.set_has_run(True)
             self.process_in_CPU = new_process
 
         # otherwise, put new_process in CPU and take old one out
         else:
-            new_process.in_CPU(True)
-            new_process.set_has_run(True)
+            new_process.set_in_CPU(True)
             self.process_in_CPU.set_in_CPU(False)
             self.process_in_CPU = new_process
 

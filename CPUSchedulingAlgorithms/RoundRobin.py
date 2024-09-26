@@ -16,6 +16,9 @@ class RoundRobin:
         # while there exists at least one process whose finished flag is false
         while not self.process_list.get_all_finished():
 
+            # add the newly arrived processes to the ready list in order of their external priorities
+            self._handle_new_arrivals(self.timestamp)
+
             # if the ready list is not empty
             if not len(self.ready_list.get_internal_list()) == 0:
                 current_process = self.ready_list.get_internal_list()[0] # assign the first process in the ready_list to current_process
@@ -43,9 +46,6 @@ class RoundRobin:
                 self.ready_list.tick_all()
                 self.has_run_this_cycle.tick_all()
                 self.timestamp += 1  # increment the timestamp by time_quantum
-
-            # add the newly arrived processes to the ready list in order of their external priorities
-            self._handle_new_arrivals(self.timestamp)
 
 
     # method for handling processes that have newly arrived
@@ -78,9 +78,9 @@ class RoundRobin:
         # if current_process has finished, exit method
         if current_process.get_finished(): return
 
-        init_timestamp = self.timestamp
+        init_timestamp = self.timestamp                 # temporary timestamp for console message
         self.ready_list.context_switch(current_process) # context switch current_process into CPU
-        print(f'------\nProcess #{current_process.get_process_number} Entering CPU')
+        print(f'------\nProcess #{current_process.get_process_number()} Entering CPU at Time {self.timestamp}')
 
         for i in range(self.time_quantum):
             self.ready_list.tick_all()                  # call tick_all() on the processes of the ready_list and has_run lists time_quantum times
@@ -89,7 +89,7 @@ class RoundRobin:
 
             if current_process.get_finished(): break    # if current_process finishes before loop, break to avoid idle CPU time
 
-        print(f'''Process #{current_process.get_process_number} in CPU for {self.timestamp - init_timestamp} units of time
+        print(f'''Process #{current_process.get_process_number()} in CPU for {self.timestamp - init_timestamp} units of time
 Process Finished? : {current_process.get_finished()}
 -----
 ''')

@@ -62,8 +62,12 @@ class CPUProcess:
         else:
             self.turnaround_time += 1 # increment the turnaround_time counter
 
+            # if process is in the CPU
             if self.in_CPU:
                 self.burst_time -= 1  # decrement the burst_time counter
 
-            if self.burst_time == 0:  # if the burst time has reached zero, mark the process as finished
-                self.finished = True
+                if self.burst_time == 0: # if the burst time has reached zero, mark the process as finished
+                    self.finished = True
+
+            if self.in_CPU and self.finished:
+                print("ERROR: tried calling tick() with finished process in CPU ; turnaround times will be inaccurate")
