@@ -6,7 +6,7 @@ class RoundRobin:
     def __init__(self, process_list: ProcessList, time_quantum: int):
         self.process_list = process_list.get_internal_list()                     # internal list for every single process finished or not
         self.ready_list: ProcessList = ProcessList.ProcessList([])               # processes that are ready to run in the current RR cycle
-        self.has_run_this_cycle: ProcessList = ProcessList.ProcessList([])       # processes that have already run in the RR cycle
+        self.has_run_this_cycle: ProcessList = ProcessList.ProcessList([])       # processes that have already run in the current RR cycle
         self.timestamp = 0                                                       # a counter for keeping track of the current time
         self.time_quantum = time_quantum                                         # time quantum for RR
 
