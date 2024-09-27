@@ -2,53 +2,53 @@ import CPUProcess, ProcessList, time
 
 class ShortestJobFirst:
     def __init__(self, process_list: ProcessList):
-        # initialize the process list to have the constituent processes be in the final order of execution
-        self.process_list = process_list.get_internal_list().sort(key=lambda process: process.get_burst_time())
+        self.process_list = process_list
+        self.ready_list = ProcessList.ProcessList([])
 
         self.timestamp = 0             # counter for keeping track of current time
         self.previous_finish_time = 0  # holds the timestamp of when the previous process completed
 
     def run(self):
 
-        # iterate through each process in the process_list
-        for process in self.process_list.get_internal_list():
+        print(f'Starting SJF Algorithm\n*****************')
+        time.sleep(2)
 
-            time.sleep(1) # for fun
+        while not self.process_list.get_all_finished():
 
-            # check if CPU is waiting on a process to arrive
-            ################################################
+            time.sleep(1)
 
-            if self.previous_finish_time < process.get_arrival_time():
-                start_idle_time = self.timestamp
-                total_idle_time = 0
+            # check for new processes that are ready to enter the ready_list
+            for process in self.process_list.get_internal_list():
 
-                time.sleep(3) # for fun
+                # if process hasn't already been marked as arrived and its arrival_time has passed
+                if not process.get_arrived() and process.get_arrival_time() <= self.timestamp:
+                    process.set_arrived(True)                           # mark it as arrived
+                    self.ready_list.get_internal_list().append(process) # add it to the ready_list
 
-                # idle the CPU until the next process arrives
-                while self.timestamp < process.get_arrival_time():
+            # if ready list is empty, idle the CPU --> increment time stamp & re-run outer loop until a proces arrives
+            if len(self.ready_list.get_internal_list()) == 0:
+                self.timestamp += 1
+                continue
+
+            # if there are processes in the ready_list
+            else:
+                self.ready_list.get_internal_list().sort(key=lambda process: process.get_burst_time()) # sort them by shortest job
+                current_process = self.ready_list.get_internal_list().pop(0)                           # pop and store the process with the shortest job in current_process
+
+
+                self.process_list.context_switch(current_process)                                      # context switch current_process into CPU
+                print(f'\nProcess #{current_process.get_process_number()} Entering CPU at Time {self.timestamp}')
+
+                while not current_process.get_finished():
                     self.timestamp += 1
-                    total_idle_time += 1
+                    self.process_list.tick_all()
+                    current_process.check_finish_and_update(self.timestamp)
 
-                # display idle time message
-                print(f'No Processes in Ready List.  Start Idle Time: {start_idle_time} ; Total Idle Time: {total_idle_time}')
+                time.sleep(0.5)
+                print(f'Process #{current_process.get_process_number()} Finished at Time {self.timestamp}\n--------')
 
-
-            # if a process is ready to run
-            ##############################
-
-            # print to console that the process is entering CPU and context switch it in
-            print(f'Process #{process.get_process_number()} entering CPU at Time {self.timestamp}')
-            self.process_list.context_switch(process)
-
-            # while the process is not finished (SJF is non-preemptive)
-            while not process.get_finished():
-                self.timestamp += 1                              # increment timestamp
-                self.process_list.tick_all()                     # update fields of processes in process_list
-                process.check_finish_and_update(self.timestamp)  # check for process completion and update flags
-
-            # update previous_finish_time to check for potential waiting time for next process
-            self.previous_finish_time = self.timestamp
-
-            # print message to console
-            print(f'''Process #{process.get_process_number()} Finished at Time {self.timestamp}''')
-
+        print(f'''*********************************************
+SJF Algorithm Completed in {self.timestamp} Time Units
+Average Turnaround Time: {self.process_list.calculate_average_turnaround_time()} Time Units
+*********************************************''')
+        time.sleep(10)
