@@ -1,4 +1,4 @@
-import CPUProcess, ProcessList
+import CPUProcess, ProcessList, time
 
 class RoundRobin:
 
@@ -13,14 +13,20 @@ class RoundRobin:
 
     def run(self) -> None:
 
+        # print message confirming start of algorithm
+        print('Starting Round Robin Algorithm\n**********\n')
+
         # while there exists at least one process whose finished flag is false
         while not self.process_list.get_all_finished():
+
+            time.sleep(0.5) # makes the program execution more fun
 
             # add the newly arrived processes to the ready list in order of their external priorities
             self._handle_new_arrivals(self.timestamp)
 
             # if the ready list is not empty
             if not len(self.ready_list.get_internal_list()) == 0:
+                self.ready_list.get_internal_list().sort(key=lambda process: process.get_external_priority())
                 current_process = self.ready_list.get_internal_list()[0] # assign the first process in the ready_list to current_process
                 self._execute_time_quantum(current_process)
 
@@ -43,9 +49,13 @@ class RoundRobin:
 
                 # tick_all() both lists to update turnaround_time counters and increment timestamp
                 # new processes will be checked for next iteration of outer loop using updated timestamp
-                self.ready_list.tick_all()
-                self.has_run_this_cycle.tick_all()
+                self.process_list.tick_all()
                 self.timestamp += 1  # increment the timestamp by time_quantum
+
+        print(f'''*********************************
+Round Robin Completed in {self.timestamp} Time Units
+Average Turnaround Time = {self.process_list.calculate_average_turnaround_time():.2f} Time Units
+*********************************''')
 
 
     # method for handling processes that have newly arrived
@@ -67,29 +77,30 @@ class RoundRobin:
 
         # add the new arrivals to the ready list if any exist
         if len(new_arrivals) > 0:
-            new_arrivals.sort(key=lambda process: process.get_external_priority())  # sort newly arrived processes by external_priorities
-            updated_ready_list = self.ready_list.get_internal_list() + new_arrivals # put the new processes at the end of the ready list
+            updated_ready_list = self.ready_list.get_internal_list() + new_arrivals # add new processes to ready_list
             self.ready_list.set_internal_list(updated_ready_list)                   # set the ready list to this
 
 
     # method for context switching a process into the CPU and keeping it there for time_quantum time
     def _execute_time_quantum(self, current_process: CPUProcess) -> None:
 
-        # if current_process has finished, exit method
-        if current_process.get_finished(): return
+        # if process has finished, exit the function
+        if current_process.get_finished():
+            return
 
         init_timestamp = self.timestamp                 # temporary timestamp for console message
         self.ready_list.context_switch(current_process) # context switch current_process into CPU
-        print(f'------\nProcess #{current_process.get_process_number()} Entering CPU at Time {self.timestamp}')
+        print(f'Process #{current_process.get_process_number()} Entering CPU at Time {self.timestamp}')
 
         for i in range(self.time_quantum):
-            self.ready_list.tick_all()                  # call tick_all() on the processes of the ready_list and has_run lists time_quantum times
-            self.has_run_this_cycle.tick_all()
-            self.timestamp += 1                         # increment the timestamp by time_quantum
+            self.process_list.tick_all()
+            self.timestamp += 1                                     # increment the timestamp by time_quantum
+            current_process.check_finish_and_update(self.timestamp) # check if the process has finished and update its flags if so
 
-            if current_process.get_finished(): break    # if current_process finishes before loop, break to avoid idle CPU time
+            if current_process.get_finished(): break                # if current_process finishes before loop, break to avoid idle CPU time
 
-        print(f'''Process #{current_process.get_process_number()} in CPU for {self.timestamp - init_timestamp} units of time
+        print(f'''Process #{current_process.get_process_number()} in CPU for {self.timestamp - init_timestamp} Units of Time
 Process Finished? : {current_process.get_finished()}
+Remaining Burst Time: {current_process.get_burst_time()}
 -----
 ''')

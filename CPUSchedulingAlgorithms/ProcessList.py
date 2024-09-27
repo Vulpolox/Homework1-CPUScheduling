@@ -23,15 +23,22 @@ class ProcessList:
     # method for "context switching" processes in and out of CPU
     def context_switch(self, new_process: CPUProcess) -> None:
 
+        # if both the new_process and the current_process are null, exit function
+        if new_process is None and self.process_in_CPU is None: return
+
         # if new_process is None, then CPU is moving to idle state
         if new_process is None:
             self.process_in_CPU.set_in_CPU(False)
             self.process_in_CPU = None
 
         # if CPU is in idle state, put new_process in
-        if self.process_in_CPU is None:
+        elif self.process_in_CPU is None:
             new_process.set_in_CPU(True)
             self.process_in_CPU = new_process
+
+        # if there is an attempt to context switch a program that is already in the CPU, exit function
+        elif self.process_in_CPU is new_process:
+            return
 
         # otherwise, put new_process in CPU and take old one out
         else:
@@ -65,5 +72,8 @@ class ProcessList:
     def calculate_average_turnaround_time(self) -> float:
         sum = 0.0
         for process in self.process_list:
-            sum += process.get_turnaround_time()
+            turnaround_time = process.get_finish_time() - process.get_arrival_time()
+#            print(f'''Process #{process.get_process_number()}; Turnaround Time = {turnaround_time}
+#                  Arrival Time: {process.get_arrival_time()}; End Time: {process.get_finish_time()}''')
+            sum += turnaround_time
         return sum / len(self.process_list)
