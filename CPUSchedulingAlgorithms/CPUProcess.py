@@ -8,7 +8,7 @@ class CPUProcess:
         self.burst_time = burst_time                 # how long the process will run in the CPU before completing
         self.external_priority = external_priority   # decides the order of process execution if two processes have same main priority
 
-        self.finish_time = -1
+        self.finish_time = -1                        # timestamp of process completion
         self.turnaround_time = 0                     # how long the process has been ready or in the CPU before finishing
 
         self.arrived = False                         # a flag to keep track of when the process first enters the ready state

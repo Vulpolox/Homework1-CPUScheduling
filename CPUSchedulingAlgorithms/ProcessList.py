@@ -4,9 +4,9 @@ class ProcessList:
 
     # constructor
     def __init__(self, process_list: list):
-        self.process_list = process_list
-        self.process_in_CPU = None
-        self.all_finished = False
+        self.process_list = process_list  # internal list for holding CPUProcess instances
+        self.process_in_CPU = None        # reference for the process that is currently in the CPU
+        self.all_finished = False         # flag for whether all process within self.process_list have finished ; is updated in every call of tick_all()
 
 
     # accessors and mutators

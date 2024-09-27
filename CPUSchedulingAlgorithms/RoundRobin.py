@@ -84,14 +84,16 @@ Average Turnaround Time = {self.process_list.calculate_average_turnaround_time()
     # method for context switching a process into the CPU and keeping it there for time_quantum time
     def _execute_time_quantum(self, current_process: CPUProcess) -> None:
 
-        # if process has finished, exit the function
+        # if process passed to the function has already finished, exit the function
         if current_process.get_finished():
             return
 
         init_timestamp = self.timestamp                 # temporary timestamp for console message
         self.ready_list.context_switch(current_process) # context switch current_process into CPU
+
         print(f'Process #{current_process.get_process_number()} Entering CPU at Time {self.timestamp}')
 
+        # execute the time_quantum
         for i in range(self.time_quantum):
             self.process_list.tick_all()
             self.timestamp += 1                                     # increment the timestamp by time_quantum
